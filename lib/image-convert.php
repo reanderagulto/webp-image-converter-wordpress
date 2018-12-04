@@ -1,4 +1,5 @@
 <?php 
+global $controlfile;
 /*-------------------------------------------------
     Function name: imageCreateFromAny
     Params: 
@@ -40,7 +41,7 @@ function imageCreateFromAny($filepath) {
 ---------------------------------------------------*/
 function imageConvertToWebP($filefromcreate, $origpath, $filename){
     $filepath = $origpath . "/" . $filename . ".webp";
-    if(imagewebp($filefromcreate, $filepath))
+    if(imagewebp($filefromcreate, $filepath, '65'))
         return true; 
     else
         return false;
@@ -53,20 +54,42 @@ function imageConvertToWebP($filefromcreate, $origpath, $filename){
         $filename       - Image file name only (no extension)
 ---------------------------------------------------*/
 function readDirs($path){
+    global $controlfile;
+    $controlfile  = 'assets/control.file';
     $dirHandle = opendir($path);
+    $myfile = fopen($controlfile, "a");
+
+    $cfilecontent = file_get_contents($controlfile);
+    $txt = "";
     while($item = readdir($dirHandle)) {
         $newPath = $path."/".$item;
         $path_parts = pathinfo($newPath);
         if(is_dir($newPath) && $item != '.' && $item != '..') {
            readDirs($newPath);
         }
-        else if(is_file($newPath) && $path_parts['extension'] != 'webp'){
-            $im = imageCreateFromAny($newPath);
-            if(imageConvertToWebP($im, $path_parts['dirname'], $path_parts['filename']))
-                echo 'Conversion Successful!<br>';
-            else
-                echo 'Conversion not Successful!<br>';
+        else if(is_file($newPath) && 
+                $path_parts['extension'] != 'webp' &&
+                $path_parts['extension'] != 'mmdb' &&
+                (
+                    $path_parts['extension'] == 'png' ||
+                    $path_parts['extension'] == 'jpeg' ||
+                    $path_parts['extension'] == 'jpg' ||  
+                    $path_parts['extension'] == 'bmp' || 
+                    $path_parts['extension'] == 'gif'
+                ) 
+        ){
+            $pattern = preg_quote($path_parts['dirname'] . $path_parts['filename'] . '.webp', '/');
+            $pattern = "/^.*$pattern.*\$/m";
+            if((!preg_match($pattern, $cfilecontent)) && (!file_exists($path_parts['dirname'] . $path_parts['filename'] . '.webp')))
+            {
+                $im = imageCreateFromAny($newPath);
+                if(imageConvertToWebP($im, $path_parts['dirname'], $path_parts['filename'])){
+                    $txt .= "Conversion for " . $path_parts['dirname'] . $path_parts['filename'] . ".webp is successful" . PHP_EOL;
+                }
+            }
         }
     }
+    fwrite($myfile, $txt);
+    fclose($myfile);
 }
 ?>
