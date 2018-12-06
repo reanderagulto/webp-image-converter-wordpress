@@ -9,7 +9,7 @@
 			Change the $folder to corresponding folder of the images
 			The script will convert every valid images inside the said folder
 	---------------------------------------------------*/
-	include_once("lib/image-convert.php");
+	include_once("webpconverter/image-convert.php");
 	/*
 		Change $folder based on framework
 		Wordpress: 
@@ -19,6 +19,6 @@
 		Magento 2:
 			pub/media
 	*/
-	$folder = "uploads"; 
+	$folder = "wp-content/uploads"; 
 	readDirs($folder);
 ?>

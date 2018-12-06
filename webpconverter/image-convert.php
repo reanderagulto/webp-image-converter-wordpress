@@ -33,20 +33,6 @@ function imageCreateFromAny($filepath) {
     return $im;  
 }
 /*-------------------------------------------------
-    Function name: imageConvertToWebP
-    Params: 
-        $filefromcreate - created image (png, jpg, bmp).
-        $origpath       - image original path
-        $filename       - Image file name only (no extension)
----------------------------------------------------*/
-function imageConvertToWebP($filefromcreate, $origpath, $filename){
-    $filepath = $origpath . "/" . $filename . ".webp";
-    if(imagewebp($filefromcreate, $filepath, '65'))
-        return true; 
-    else
-        return false;
-}
-/*-------------------------------------------------
     Function name: readDirs
     Params: 
         $filefromcreate - created image (png, jpg, bmp).
@@ -55,7 +41,7 @@ function imageConvertToWebP($filefromcreate, $origpath, $filename){
 ---------------------------------------------------*/
 function readDirs($path){
     global $controlfile;
-    $controlfile  = 'assets/control.file';
+    $controlfile  = 'webpconverter/control.file';
     $dirHandle = opendir($path);
     $myfile = fopen($controlfile, "a");
 
@@ -83,13 +69,15 @@ function readDirs($path){
             if((!preg_match($pattern, $cfilecontent)) && (!file_exists($path_parts['dirname'] . $path_parts['filename'] . '.webp')))
             {
                 $im = imageCreateFromAny($newPath);
-                if(imageConvertToWebP($im, $path_parts['dirname'], $path_parts['filename'])){
-                    $txt .= "Conversion for " . $path_parts['dirname'] . $path_parts['filename'] . ".webp is successful" . PHP_EOL;
+                if(imagewebp($im, $path_parts['dirname'] . '/' . $path_parts['filename'] . '.webp', 65)){
+                    $txt .= "Conversion for " . $path_parts['dirname'] . '/' . $path_parts['filename'] . ".webp is successful" . PHP_EOL;
                 }
+                imagedestroy($im);
             }
         }
     }
     fwrite($myfile, $txt);
     fclose($myfile);
+
 }
 ?>
