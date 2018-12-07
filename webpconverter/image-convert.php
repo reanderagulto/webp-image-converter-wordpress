@@ -6,6 +6,9 @@ global $controlfile;
         $filepath - image file path.
 ---------------------------------------------------*/
 function imageCreateFromAny($filepath) { 
+    $path_parts = pathinfo($filepath);
+    $type = $path_parts['extension'];
+    /*
     $type = exif_imagetype($filepath); // [] if you don't have exif you could use getImageSize() 
     $allowedTypes = array( 
         1,  // [] gif 
@@ -13,24 +16,23 @@ function imageCreateFromAny($filepath) {
         3,  // [] png 
         6   // [] bmp 
     ); 
-    if (!in_array($type, $allowedTypes)) { 
-        return false; 
-    } 
+    */
     switch ($type) { 
-        case 1 : 
+        case 'gif' : 
             $im = imageCreateFromGif($filepath); 
         break; 
-        case 2 : 
+        case 'jpg' : 
             $im = imageCreateFromJpeg($filepath); 
         break; 
-        case 3 : 
+        case 'png' : 
             $im = imageCreateFromPng($filepath); 
         break; 
-        case 6 : 
+        case 'bmp' : 
             $im = imageCreateFromBmp($filepath); 
         break; 
     }    
     return $im;  
+   
 }
 /*-------------------------------------------------
     Function name: readDirs
@@ -66,6 +68,8 @@ function readDirs($path){
         ){
             $pattern = preg_quote($path_parts['dirname'] . $path_parts['filename'] . '.webp', '/');
             $pattern = "/^.*$pattern.*\$/m";
+            //$im = imageCreateFromAny($newPath);
+            
             if((!preg_match($pattern, $cfilecontent)) && (!file_exists($path_parts['dirname'] . $path_parts['filename'] . '.webp')))
             {
                 $im = imageCreateFromAny($newPath);
@@ -74,6 +78,7 @@ function readDirs($path){
                 }
                 imagedestroy($im);
             }
+            
         }
     }
     fwrite($myfile, $txt);
